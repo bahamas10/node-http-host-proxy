@@ -1,0 +1,41 @@
+<?xml version='1.0'?>
+<!DOCTYPE service_bundle SYSTEM '/usr/share/lib/xml/dtd/service_bundle.dtd.1'>
+<service_bundle type='manifest' name='application-http-host-proxy'>
+	<service name='application/http-host-proxy' type='service' version='0'>
+		<create_default_instance enabled='true'/>
+		<dependency name='dep0' grouping='require_all' restart_on='error' type='service'>
+			<service_fmri value='svc:/milestone/multi-user:default'/>
+		</dependency>
+		<method_context working_directory='/tmp'>
+			<method_credential user='nobody' group='other'/>
+			<method_environment>
+				<!-- == Required == -->
+				<!-- router file [required] -->
+				<envvar name='HTTPHOSTPROXY_ROUTES' value='/path/to/routes/file'/>
+
+				<!-- == Authentication == -->
+				<!-- passhash auth file, authenication disabled if this is empty -->
+				<envvar name='HTTPHOSTPROXY_AUTH' value=''/>
+				<!-- time, in seconds, to delay before responding to failed authentication attempts -->
+				<envvar name='HTTPHOSTPROXY_FAIL_DELAY' value='2'/>
+
+				<!-- == SSL == -->
+				<!-- set this variable to anything to enable SSL -->
+				<envvar name='HTTPHOSTPROXY_SSL' value=''/>
+				<envvar name='HTTPHOSTPROXY_KEY' value='/path/to/ssl/file.key'/>
+				<envvar name='HTTPHOSTPROXY_CERT' value='/path/to/ssl/file.cert'/>
+
+				<!-- == Socket  == -->
+				<envvar name='HTTPHOSTPROXY_HOST' value='0.0.0.0'/>
+				<envvar name='HTTPHOSTPROXY_PORT' value='8080'/>
+			</method_environment>
+		</method_context>
+		<exec_method name='start' type='method' exec='http-host-proxy &amp;' timeout_seconds='10'/>
+		<exec_method name='stop' type='method' exec=':kill' timeout_seconds='30'/>
+		<template>
+			<common_name>
+				<loctext xml:lang='C'>HTTP Host Proxy</loctext>
+			</common_name>
+		</template>
+	</service>
+</service_bundle>

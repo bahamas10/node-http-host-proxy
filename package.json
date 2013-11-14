@@ -1,0 +1,23 @@
+{
+  "name": "http-host-proxy",
+  "version": "0.0.0",
+  "description": "HTTP(s) proxy with host based routing to front servers, with optional SSL or authentication",
+  "author": "Dave Eddy <dave@daveeddy.com> (http://www.daveeddy.com)",
+  "main": "./http-host-proxy.js",
+  "preferGlobal": true,
+  "bin": {
+    "http-host-proxy": "./http-host-proxy.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": "git://github.com/bahamas10/node-http-host-proxy.git",
+  "license": "MIT",
+  "dependencies": {
+    "posix-getopt": "~1.0.0",
+    "access-log": "~0.3.3",
+    "http-proxy": "~0.10.3",
+    "latest": "~0.1.2",
+    "passhash-auth": "~0.1.0"
+  }
+}
