@@ -185,7 +185,7 @@ function onrequest(req, res) {
   });
 
   var host = req.headers.host;
-  var p = proxies[host];
+  var p = proxies.hasOwnProperty(host) ? proxies[host] : null;
   var credentials = getcredentials(req);
 
   // don't expose auth info to the backend service if we are handling it
