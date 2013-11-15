@@ -192,21 +192,7 @@ function onrequest(req, res) {
   if (opts.auth)
     delete req.headers.authorization;
 
-  // check host header
-  if (!host) {
-    res.statusCode = 400;
-    res.end('no host header found\n');
-    return;
-  }
-
-  // check router for proxy
-  if (!p) {
-    res.statusCode = 404;
-    res.end('no route found for host: ' + host + '\n');
-    return;
-  }
-
-  // check auth
+  // check auth first if applicable
   if (auth) {
     // check if credentials were given
     if (!credentials) {
@@ -221,6 +207,20 @@ function onrequest(req, res) {
       }, opts.faildelay * 1000);
       return;
     }
+  }
+
+  // check host header
+  if (!host) {
+    res.statusCode = 400;
+    res.end('no host header found\n');
+    return;
+  }
+
+  // check router for proxy
+  if (!p) {
+    res.statusCode = 404;
+    res.end('no route found for host: ' + host + '\n');
+    return;
   }
 
   // proxy it!
