@@ -20,6 +20,7 @@ var accesslog = require('access-log');
 var getopt = require('posix-getopt');
 var httpProxy = require('http-proxy');
 var PasshashAuth = require('passhash-auth');
+var strsplit = require('strsplit');
 
 var defaulthost = '0.0.0.0';
 var defaultport = 8080;
@@ -243,7 +244,7 @@ function getcredentials(req) {
   var ret = null;
   try {
     var s = new Buffer(a.split(' ')[1], 'base64').toString();
-    var split = s.split(':');
+    var split = strsplit(n, ':', 2);
     var user = split[0];
     var pass = split[1];
     ret = {
