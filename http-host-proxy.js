@@ -244,7 +244,7 @@ function getcredentials(req) {
   var ret = null;
   try {
     var s = new Buffer(a.split(' ')[1], 'base64').toString();
-    var split = strsplit(n, ':', 2);
+    var split = strsplit(s, ':', 2);
     var user = split[0];
     var pass = split[1];
     ret = {
