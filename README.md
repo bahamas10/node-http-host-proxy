@@ -193,6 +193,7 @@ Usage
       -p, --port <port>             [env HTTPHOSTPROXY_PORT] the port on which to listen, defaults to 8080
 
     options
+      -b, --buffer                  [env HTTPHOSTPROXY_BUFFER] buffer log output, useful if this webserver is heavily used
       -h, --help                    print this message and exit
       -u, --updates                 check for available updates on npm
       -v, --version                 print the version number and exit

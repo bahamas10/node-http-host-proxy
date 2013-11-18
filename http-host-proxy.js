@@ -53,6 +53,7 @@ function usage() {
     '  -p, --port <port>             [env HTTPHOSTPROXY_PORT] the port on which to listen, defaults to ' + defaultport,
     '',
     'options',
+    '  -b, --buffer                  [env HTTPHOSTPROXY_BUFFER] buffer log output, useful if this webserver is heavily used',
     '  -h, --help                    print this message and exit',
     '  -u, --updates                 check for available updates on npm',
     '  -v, --version                 print the version number and exit'
@@ -62,6 +63,7 @@ function usage() {
 // command line arguments
 var options = [
   'a:(auth)',
+  'b(buffer)',
   'c:(cert)',
   'f:(fail-delay)',
   'h(help)',
@@ -77,6 +79,7 @@ var parser = new getopt.BasicParser(options, process.argv);
 
 var opts = {
   auth: process.env.HTTPHOSTPROXY_AUTH,
+  buffer: process.env.HTTPHOSTPROXY_BUFFER,
   cert: process.env.HTTPHOSTPROXY_CERT,
   faildelay: process.env.HTTPHOSTPROXY_FAIL_DELAY,
   host: process.env.HTTPHOSTPROXY_HOST,
@@ -89,6 +92,7 @@ var option;
 while ((option = parser.getopt()) !== undefined) {
   switch (option.option) {
     case 'a': opts.auth = option.optarg; break;
+    case 'b': opts.buffer = true; break;
     case 'c': opts.cert = option.optarg; break;
     case 'f': opts.faildelay = option.optarg; break;
     case 'h': console.log(usage()); process.exit(0);
@@ -166,6 +170,13 @@ if (opts.auth)
 function listening() {
   console.log('listening on %s://%s:%d',
       opts.ssl ? 'https' : 'http', opts.host, opts.port);
+  if (opts.buffer) {
+    // buffer the logs
+    var logbuffer = require('log-buffer');
+    logbuffer(8192);
+    // flush every 5 seconds
+    setInterval(logbuffer.flush.bind(logbuffer), 5 * 1000);
+  }
 }
 
 // new web request
@@ -189,12 +200,11 @@ function onrequest(req, res) {
   var p = proxies.hasOwnProperty(host) ? proxies[host] : null;
   var credentials = getcredentials(req);
 
-  // don't expose auth info to the backend service if we are handling it
-  if (opts.auth)
+  // check auth first if applicable
+  if (opts.auth) {
+    // don't expose auth info to the backend service if we are handling it
     delete req.headers.authorization;
 
-  // check auth first if applicable
-  if (auth) {
     // check if credentials were given
     if (!credentials) {
       fail(res, credentials);

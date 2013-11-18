@@ -19,6 +19,7 @@
     "http-proxy": "~0.10.3",
     "latest": "~0.1.2",
     "passhash-auth": "~0.1.0",
-    "strsplit": "~1.0.0"
+    "strsplit": "~1.0.0",
+    "log-buffer": "~0.0.3"
   }
 }

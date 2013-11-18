@@ -25,9 +25,12 @@
 				<envvar name='HTTPHOSTPROXY_KEY' value='/path/to/ssl/file.key'/>
 				<envvar name='HTTPHOSTPROXY_CERT' value='/path/to/ssl/file.cert'/>
 
-				<!-- == Socket  == -->
+				<!-- == Socket == -->
 				<envvar name='HTTPHOSTPROXY_HOST' value='0.0.0.0'/>
 				<envvar name='HTTPHOSTPROXY_PORT' value='8080'/>
+
+				<!-- == Misc. == -->
+				<envvar name='HTTPHOSTPROXY_BUFFER' value=''/>
 			</method_environment>
 		</method_context>
 		<exec_method name='start' type='method' exec='http-host-proxy &amp;' timeout_seconds='10'/>
