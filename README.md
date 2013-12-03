@@ -19,6 +19,12 @@ First create a router file
 
 ``` json
 {
+  "test1.com": "localhost:8080",
+  "test2.com": "127.0.0.1:8081",
+  "test3.com": {
+    "host": "192.168.1.15",
+    "port": 8000
+  },
   "daveeddy.com": "daveeddy.com",
   "google.com": "google.com:80",
   "github.com": {
