@@ -197,7 +197,7 @@ function onrequest(req, res) {
   });
 
   var host = req.headers.host;
-  var p = proxies.hasOwnProperty(host) ? proxies[host] : null;
+  var p = hasOwnProperty.call(proxies, host) ? proxies[host] : proxies['*'];
   var credentials = getcredentials(req);
 
   // check auth first if applicable
@@ -248,7 +248,7 @@ function fail(res, creds) {
 // extract the credentials from the req object
 function getcredentials(req) {
   var a = req.headers.authorization;
-  if (!a || !a.indexOf('Basic ') === 0)
+  if (!a || a.indexOf('Basic ') !== 0)
     return null;
 
   var ret = null;

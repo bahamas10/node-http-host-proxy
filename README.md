@@ -82,6 +82,19 @@ On the server end, you can see Apache style logs, prefixed with the host header.
     [localhost:8080] 127.0.0.1 - - [14/Nov/2013:17:14:59 -0500] "GET / HTTP/1.1" 404 - "-" "curl/7.30.0"
     [daveeddy.com] 127.0.0.1 - - [14/Nov/2013:17:15:12 -0500] "GET / HTTP/1.1" 200 18692 "-" "curl/7.30.0"
 
+### Default Route
+
+You can specify the following in the router file to create a default route for
+unmatched host headers:
+
+``` json
+{
+  "*": "google.com"
+}
+```
+
+With the above in place, any successful request will be proxied to google
+
 ### SSL
 
 Enabling ssl is easy.  You need to already have a certificate and key file, or
