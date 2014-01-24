@@ -234,7 +234,8 @@ function onrequest(req, res) {
     return;
   }
 
-  // proxy it!
+  // everything is set, proxy it!
+  req.headers['X-Forwarded-User'] = credentials.user;
   p.proxyRequest(req, res);
 }
 
