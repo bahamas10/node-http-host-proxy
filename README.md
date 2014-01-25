@@ -41,7 +41,7 @@ Any of the above forms are permitted in the config.
 
 Now, we can fire up the server:
 
-    $ http-host-proxy.js -r example-router.json
+    $ http-host-proxy -r example-router.json
     listening on http://0.0.0.0:8080
 
 By default, the server listens on HTTP, host `0.0.0.0`, port `8080`
@@ -77,7 +77,7 @@ response headers and the body are delivered directly through the proxy.
 
 On the server end, you can see Apache style logs, prefixed with the host header.
 
-    $ http-host-proxy.js -r example-router.json
+    $ http-host-proxy -r example-router.json
     listening on http://0.0.0.0:8080
     [localhost:8080] 127.0.0.1 - - [14/Nov/2013:17:14:59 -0500] "GET / HTTP/1.1" 404 - "-" "curl/7.30.0"
     [daveeddy.com] 127.0.0.1 - - [14/Nov/2013:17:15:12 -0500] "GET / HTTP/1.1" 200 18692 "-" "curl/7.30.0"
@@ -106,7 +106,7 @@ generate your own.  To generate your own you can run:
 These 2 commands will create `my.key` and `my.crt` in your current directory.  Now,
 just fire up the server with the following options to listen securely.
 
-    $ http-host-proxy.js -r example-router.json --ssl -k my.key -c my.crt
+    $ http-host-proxy -r example-router.json --ssl -k my.key -c my.crt
     listening on https://0.0.0.0:8080
     [daveeddy.com] 127.0.0.1 - - [14/Nov/2013:17:25:19 -0500] "GET / HTTPS/1.1" 200 18692 "-" "curl/7.30.0"
 
@@ -147,7 +147,7 @@ First, we can create a passhash authentication database by running the following
 
 Now, we start the server with this file
 
-    $ http-host-proxy.js -r example-router.json -a passhash.txt
+    $ http-host-proxy -r example-router.json -a passhash.txt
     listening on http://0.0.0.0:8080
 
 Make a few requests, first without authorization, then with it supplied
@@ -175,7 +175,7 @@ Make a few requests, first without authorization, then with it supplied
 
 And on the server we see:
 
-    $ http-host-proxy.js -r example-router.json -a passhash.txt
+    $ http-host-proxy -r example-router.json -a passhash.txt
     listening on http://0.0.0.0:8080
     [<empty>@daveeddy.com] 127.0.0.1 - - [14/Nov/2013:17:51:30 -0500] "GET / HTTP/1.1" 401 - "-" "curl/7.30.0"
     [test@daveeddy.com] 127.0.0.1 - - [14/Nov/2013:17:51:42 -0500] "GET / HTTP/1.1" 200 18692 "-" "curl/7.30.0"
