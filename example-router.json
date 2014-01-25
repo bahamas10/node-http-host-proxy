@@ -4,5 +4,6 @@
   "github.com": {
     "host": "github.com",
     "port": 80
-  }
+  },
+  "foo": "localhost:8081"
 }
