@@ -86,7 +86,7 @@ var opts = {
   key: process.env.HTTPHOSTPROXY_KEY,
   port: process.env.HTTPHOSTPROXY_PORT,
   routesfile: process.env.HTTPHOSTPROXY_ROUTES,
-  ssl: process.env.HTTPHOSTPROXY_SSL,
+  ssl: process.env.HTTPHOSTPROXY_SSL && process.env.HTTPHOSTPROXY !== '0',
 };
 var option;
 while ((option = parser.getopt()) !== undefined) {
