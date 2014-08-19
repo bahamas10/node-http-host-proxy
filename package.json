@@ -1,6 +1,6 @@
 {
   "name": "http-host-proxy",
-  "version": "0.0.11",
+  "version": "0.0.12",
   "description": "HTTP(s) proxy with host based routing to front servers, with optional SSL or authentication",
   "author": "Dave Eddy <dave@daveeddy.com> (http://www.daveeddy.com)",
   "main": "./http-host-proxy.js",
