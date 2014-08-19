@@ -82,11 +82,13 @@ var opts = {
   buffer: process.env.HTTPHOSTPROXY_BUFFER,
   cert: process.env.HTTPHOSTPROXY_CERT,
   faildelay: process.env.HTTPHOSTPROXY_FAIL_DELAY,
+  gid: process.env.HTTPHOSTPROXY_GID,
   host: process.env.HTTPHOSTPROXY_HOST,
   key: process.env.HTTPHOSTPROXY_KEY,
   port: process.env.HTTPHOSTPROXY_PORT,
   routesfile: process.env.HTTPHOSTPROXY_ROUTES,
   ssl: process.env.HTTPHOSTPROXY_SSL && process.env.HTTPHOSTPROXY !== '0',
+  uid: process.env.HTTPHOSTPROXY_UID,
 };
 var option;
 while ((option = parser.getopt()) !== undefined) {
@@ -168,6 +170,11 @@ if (opts.auth)
 
 // web server started
 function listening() {
+  // step down permissions
+  if (opts.gid)
+    process.setgid(opts.gid);
+  if (opts.uid)
+    process.setuid(opts.uid);
   console.log('listening on %s://%s:%d',
       opts.ssl ? 'https' : 'http', opts.host, opts.port);
   if (opts.buffer) {
