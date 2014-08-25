@@ -21,6 +21,7 @@ var getopt = require('posix-getopt');
 var httpProxy = require('http-proxy');
 var PasshashAuth = require('passhash-auth');
 var strsplit = require('strsplit');
+var uuid = require('node-uuid');
 
 var defaulthost = '0.0.0.0';
 var defaultport = 8080;
@@ -54,10 +55,16 @@ function usage() {
     '',
     'options',
     '  -b, --buffer                  [env HTTPHOSTPROXY_BUFFER] buffer log output, useful if this webserver is heavily used',
+    '  -d, --debug                   [env HTTPHOSTPROXY_DEBUG] print verbose logs, defaults to false',
     '  -h, --help                    print this message and exit',
     '  -u, --updates                 check for available updates on npm',
     '  -v, --version                 print the version number and exit'
   ].join('\n');
+}
+
+function debug() {
+  if (opts.debug)
+    return console.error.apply(console, arguments);
 }
 
 // command line arguments
@@ -65,6 +72,7 @@ var options = [
   'a:(auth)',
   'b(buffer)',
   'c:(cert)',
+  'd(debug)',
   'f:(fail-delay)',
   'h(help)',
   'H:(host)',
@@ -81,6 +89,7 @@ var opts = {
   auth: process.env.HTTPHOSTPROXY_AUTH,
   buffer: process.env.HTTPHOSTPROXY_BUFFER,
   cert: process.env.HTTPHOSTPROXY_CERT,
+  debug: process.env.HTTPHOSTPROXY_DEBUG,
   faildelay: process.env.HTTPHOSTPROXY_FAIL_DELAY,
   gid: process.env.HTTPHOSTPROXY_GID,
   host: process.env.HTTPHOSTPROXY_HOST,
@@ -96,6 +105,7 @@ while ((option = parser.getopt()) !== undefined) {
     case 'a': opts.auth = option.optarg; break;
     case 'b': opts.buffer = true; break;
     case 'c': opts.cert = option.optarg; break;
+    case 'd': opts.debug = true; break;
     case 'f': opts.faildelay = option.optarg; break;
     case 'h': console.log(usage()); process.exit(0);
     case 'H': opts.host = option.optarg; break;
@@ -141,12 +151,13 @@ Object.keys(routes).forEach(function(key) {
     var host = s[0];
     var port = s[1];
     if (!port)
-      port = host.indexOf('https') === 0 ? 443 : 80
+      port = host.indexOf('https') === 0 ? 443 : 80;
     val = {
       host: host,
       port: port
     };
   }
+  debug('creating proxy: %s => %s', key, JSON.stringify(val));
   proxies[key] = new httpProxy.HttpProxy({target:val});
 });
 
@@ -165,16 +176,22 @@ server.listen(opts.port, opts.host, listening);
 
 // create an authorization object if necessary
 var auth;
-if (opts.auth)
+if (opts.auth) {
+  debug('using auth: %s', opts.auth);
   auth = new PasshashAuth(opts.auth);
+}
 
 // web server started
 function listening() {
   // step down permissions
-  if (opts.gid)
+  if (opts.gid) {
+    debug('changing gid to %s', opts.gid);
     process.setgid(opts.gid);
-  if (opts.uid)
+  }
+  if (opts.uid) {
+    debug('changing uid to %s', opts.gid);
     process.setuid(opts.uid);
+  }
   console.log('listening on %s://%s:%d',
       opts.ssl ? 'https' : 'http', opts.host, opts.port);
   if (opts.buffer) {
@@ -188,6 +205,14 @@ function listening() {
 
 // new web request
 function onrequest(req, res) {
+  var id = uuid.v4();
+  var now = Date.now();
+  function d() {
+    var s = util.format.apply(util, arguments);
+    return debug('[%s] %s', id, s);
+  }
+
+  d('starting request');
   // log every request with relevant information
   accesslog(req, res, function(s) {
     var prefix;
@@ -199,12 +224,22 @@ function onrequest(req, res) {
       prefix = util.format('%s',
           host || '<empty>');
     }
-    console.log('[%s] %s',
-      prefix, s);
+    var _s = util.format('[%s] %s', prefix, s);
+    if (opts.debug) {
+      d(_s);
+    } else {
+      console.log(_s);
+    }
+    d('finished request (%d ms)', Date.now() - now);
   });
 
   var host = req.headers.host;
-  var p = hasOwnProperty.call(proxies, host) ? proxies[host] : proxies['*'];
+  d('host header `%s`', host);
+  var p = hasOwnProperty.call(proxies, host) && proxies[host];
+  if (!p) {
+    d('no explicit route found for %s', host);
+    p = proxies['*'];
+  }
   var credentials = getcredentials(req);
 
   // check auth first if applicable
@@ -214,12 +249,14 @@ function onrequest(req, res) {
 
     // check if credentials were given
     if (!credentials) {
+      d('no credentials supplied');
       fail(res, credentials);
       return;
     }
 
     // check if credentials match a known user/pass
     if (!auth.checkHashMatch(credentials.user, credentials.pass)) {
+      d('credentials incorrect');
       setTimeout(function() {
         fail(res, credentials);
       }, opts.faildelay * 1000);
@@ -229,6 +266,7 @@ function onrequest(req, res) {
 
   // check host header
   if (!host) {
+    d('no host header found');
     res.statusCode = 400;
     res.end('no host header found\n');
     return;
@@ -244,6 +282,8 @@ function onrequest(req, res) {
   // everything is set, proxy it!
   if (credentials)
     req.headers['X-Forwarded-User'] = credentials.user;
+
+  d('proxying request');
   p.proxyRequest(req, res);
 }
 
