@@ -20,6 +20,7 @@
     "latest": "~0.1.2",
     "passhash-auth": "~0.1.0",
     "strsplit": "~1.0.0",
-    "log-buffer": "~0.0.3"
+    "log-buffer": "~0.0.3",
+    "node-uuid": "~1.4.1"
   }
 }

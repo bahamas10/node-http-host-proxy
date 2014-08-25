@@ -31,6 +31,7 @@
 
 				<!-- == Misc. == -->
 				<envvar name='HTTPHOSTPROXY_BUFFER' value=''/>
+				<envvar name='HTTPHOSTPROXY_DEBUG' value=''/>
 			</method_environment>
 		</method_context>
 		<exec_method name='start' type='method' exec='http-host-proxy &amp;' timeout_seconds='10'/>
