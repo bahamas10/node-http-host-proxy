@@ -235,9 +235,11 @@ function onrequest(req, res) {
 
   var host = req.headers.host;
   d('host header `%s`', host);
+  var implicit = false;
   var p = hasOwnProperty.call(proxies, host) && proxies[host];
   if (!p) {
     d('no explicit route found for %s', host);
+    implicit = true;
     p = proxies['*'];
   }
   var credentials = getcredentials(req);
@@ -265,7 +267,7 @@ function onrequest(req, res) {
   }
 
   // check host header
-  if (!host) {
+  if (!host && !implicit) {
     d('no host header found');
     res.statusCode = 400;
     res.end('no host header found\n');
@@ -283,7 +285,7 @@ function onrequest(req, res) {
   if (credentials)
     req.headers['X-Forwarded-User'] = credentials.user;
 
-  d('proxying request');
+  d('proxying request to %s:%d', p.options.target.host, p.options.target.port);
   p.web(req, res, function(e) {
     d('proxy failed! %s', e.message);
     res.destroy();
