@@ -158,7 +158,7 @@ Object.keys(routes).forEach(function(key) {
     };
   }
   debug('creating proxy: %s => %s', key, JSON.stringify(val));
-  proxies[key] = new httpProxy.HttpProxy({target:val});
+  proxies[key] = httpProxy.createProxyServer({target:val});
 });
 
 // create the HTTP or HTTPS server
@@ -284,7 +284,10 @@ function onrequest(req, res) {
     req.headers['X-Forwarded-User'] = credentials.user;
 
   d('proxying request');
-  p.proxyRequest(req, res);
+  p.web(req, res, function(e) {
+    d('proxy failed! %s', e.message);
+    res.destroy();
+  });
 }
 
 // failed auth, send auth headers back
