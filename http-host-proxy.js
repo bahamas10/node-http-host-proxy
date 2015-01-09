@@ -142,24 +142,44 @@ if (opts.ssl && (!opts.key || !opts.cert)) {
 }
 
 // create the proxies
-var routes = JSON.parse(fs.readFileSync(opts.routesfile, 'utf-8'));
 var proxies = {};
-Object.keys(routes).forEach(function(key) {
-  var val = routes[key];
-  if (typeof val === 'string') {
-    var s = val.split(':');
-    var host = s[0];
-    var port = s[1];
-    if (!port)
-      port = host.indexOf('https') === 0 ? 443 : 80;
-    val = {
-      host: host,
-      port: port
-    };
+function loadroutes(shouldthrow) {
+  debug('loading routes: %s', opts.routesfile);
+  var routes;
+  try {
+    routes = JSON.parse(fs.readFileSync(opts.routesfile, 'utf-8'));
+  } catch(e) {
+    debug('failed to load routes: %s', e.message);
+    if (shouldthrow)
+      throw e;
+    else
+      return;
   }
-  debug('creating proxy: %s => %s', key, JSON.stringify(val));
-  proxies[key] = httpProxy.createProxyServer({target:val});
-});
+
+  // clear the old proxies object
+  Object.keys(proxies).forEach(function(key) {
+    delete proxies[key];
+  });
+  Object.keys(routes).forEach(function(key) {
+    var val = routes[key];
+    if (typeof val === 'string') {
+      var s = val.split(':');
+      var host = s[0];
+      var port = s[1];
+      if (!port)
+        port = host.indexOf('https') === 0 ? 443 : 80;
+      val = {
+        host: host,
+        port: port
+      };
+    }
+    debug('creating proxy: %s => %s', key, JSON.stringify(val));
+    proxies[key] = httpProxy.createProxyServer({target:val});
+  });
+}
+
+loadroutes(true);
+process.on('SIGHUP', loadroutes);
 
 // create the HTTP or HTTPS server
 var server;
