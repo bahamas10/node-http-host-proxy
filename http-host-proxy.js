@@ -203,6 +203,7 @@ if (opts.auth) {
 
 // web server started
 function listening() {
+  debug('pid: %d', process.pid);
   // step down permissions
   if (opts.gid) {
     debug('changing gid to %s', opts.gid);
