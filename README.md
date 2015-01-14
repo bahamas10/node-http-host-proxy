@@ -217,6 +217,24 @@ Usage
       -u, --updates                 check for available updates on npm
       -v, --version                 print the version number and exit
 
+Configuration
+-------------
+
+- `process.env.HTTPHOSTPROXY_AUTH` - same as `-a` or `--auth`
+- `process.env.HTTPHOSTPROXY_BUFFER` - same as `-b` or `--buffer`
+- `process.env.HTTPHOSTPROXY_CERT` - same as `-c` or `--cert`
+- `process.env.HTTPHOSTPROXY_DEBUG` - same as `-d` or `--debug`
+- `process.env.HTTPHOSTPROXY_FAIL_DELAY` - same as `-f` or `--fail-delay`
+- `process.env.HTTPHOSTPROXY_GID` - group ID to drop privileges to after server has started
+- `process.env.HTTPHOSTPROXY_HOST` - same as `-H` or `--host`
+- `process.env.HTTPHOSTPROXY_KEY` - same as `-k` or `--key`
+- `process.env.HTTPHOSTPROXY_PORT` - same as `-p` or `--port`
+- `process.env.HTTPHOSTPROXY_ROUTES` - same as `-r` or `--routes`
+- `process.env.HTTPHOSTPROXY_SSL` - same as `-s` or `--ssl`
+- `process.env.HTTPHOSTPROXY_UID` - group ID to drop privileges to after server has started
+
+Send a `SIGHUP` to the process to reload the router file
+
 Authors
 -------
 
