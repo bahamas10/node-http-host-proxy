@@ -139,9 +139,7 @@ supports sha-512 with a variable amount of iterations.
 
 First, we can create a passhash authentication database by running the following commands:
 
-    $ [sudo] npm install -g passhash
-    ...
-    $ echo -n 'test' | passhash -u test -i 50 -t sha-512 -s > passhash.txt
+    $ echo -n 'test' | http-host-proxy generate test > passhash.txt
     $ cat passhash.txt
     test:M/LBFOs4Q1y/Tu8k+GyF2SO2u4wVUYSu945Gd/lplUWd1hUwGYEecMOi7dT7b3hppKwS08appAs+f9JEdTneM2ag9JZOT2iNFp9fPxMIcfEamGrofnP/RmABR8SnltyAe0AItNx1xAogItKQdfqFsnE/FNBmlggAh9JHryVwNaw=:e11c1c5145a37c5c16c2345e1194499938657fe8dc513341e6caf315f128868d6d2ae7768145498385cc1ebe067529da722d908c992104dc2304b4fd25a04545:50
 
@@ -216,6 +214,9 @@ Usage
       -h, --help                    print this message and exit
       -u, --updates                 check for available updates on npm
       -v, --version                 print the version number and exit
+
+    misc.
+      generate <username>          run `http-host-proxy generate <user>` to create a passhash auth string
 
 Configuration
 -------------

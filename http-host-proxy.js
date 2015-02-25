@@ -23,6 +23,8 @@ var PasshashAuth = require('passhash-auth');
 var strsplit = require('strsplit');
 var uuid = require('node-uuid');
 
+var hash = require('./lib/hash');
+
 var defaulthost = '0.0.0.0';
 var defaultport = 8080;
 var defaultfaildelay = 2;
@@ -58,13 +60,22 @@ function usage() {
     '  -d, --debug                   [env HTTPHOSTPROXY_DEBUG] print verbose logs, defaults to false',
     '  -h, --help                    print this message and exit',
     '  -u, --updates                 check for available updates on npm',
-    '  -v, --version                 print the version number and exit'
+    '  -v, --version                 print the version number and exit',
+    '',
+    'misc.',
+    '  generate <username>          run `http-host-proxy generate <user>` to create a passhash auth string',
   ].join('\n');
 }
 
 function debug() {
   if (opts.debug)
     return console.error.apply(console, arguments);
+}
+
+if (process.argv[2] === 'generate') {
+  var args = process.argv.slice(3);
+  hash.cli(args);
+  return;
 }
 
 // command line arguments
