@@ -185,7 +185,7 @@ function loadroutes(shouldthrow) {
       };
     }
     debug('creating proxy: %s => %s', key, JSON.stringify(val));
-    proxies[key] = httpProxy.createProxyServer({target:val});
+    proxies[key] = httpProxy.createProxyServer({target: val, xfwd: true});
   });
 }
 
