@@ -320,7 +320,8 @@ function onrequest(req, res) {
   d('proxying request to %s:%d', p.options.target.host, p.options.target.port);
   p.web(req, res, function(e) {
     d('proxy failed! %s', e.message);
-    res.destroy();
+    res.statusCode = 500;
+    res.end();
   });
 }
 
