@@ -3,6 +3,10 @@ HTTP Host Proxy
 
 HTTP(s) proxy with host based routing to front servers, with optional SSL or authentication
 
+**NOTE**: as of version `1.0.0` this module no longer uses [Passhash][1]
+for user authentication - it has been replaced with [HashP][2]
+which has a different file format that is not backwards compatible.
+
 Installation
 ------------
 
@@ -132,16 +136,16 @@ is self-signed.
 Authentication can also be done by the proxy; It will use basic HTTP auth
 before proxying any requests.  The file format for the authentication database file
 can be thought of as a stronger version of `htpasswd`, and can be found in the
-[Passhash Node Module][1].
-
-**NOTE:** [Passhash][1] supports bycrypt and sha-512, but this proxy currently only
-supports sha-512 with a variable amount of iterations.
+[HashP Node Module][2].
 
 First, we can create a passhash authentication database by running the following commands:
 
-    $ echo -n 'test' | http-host-proxy generate test > passhash.txt
+    $ npm install -g hashp
+    $ echo -n 'password' | hashp username > passhash.txt
     $ cat passhash.txt
-    test:M/LBFOs4Q1y/Tu8k+GyF2SO2u4wVUYSu945Gd/lplUWd1hUwGYEecMOi7dT7b3hppKwS08appAs+f9JEdTneM2ag9JZOT2iNFp9fPxMIcfEamGrofnP/RmABR8SnltyAe0AItNx1xAogItKQdfqFsnE/FNBmlggAh9JHryVwNaw=:e11c1c5145a37c5c16c2345e1194499938657fe8dc513341e6caf315f128868d6d2ae7768145498385cc1ebe067529da722d908c992104dc2304b4fd25a04545:50
+    username:QLZ6oPKVhm:swQfzk8F6gVhPrA3k2/1CTzitYo+LdZ8Qx+pmwBV7CFk/pZwsiunjYxmgzkXpJK+22mF4fvqI7t3neFXBi6SpQ==:89
+
+Or optionally visiting http://bahamas10.github.io/node-hashp/
 
 Now, we start the server with this file
 
@@ -157,7 +161,7 @@ Make a few requests, first without authorization, then with it supplied
      Connection: keep-alive
      Transfer-Encoding: chunked
 
-     $ curl -i -H 'host: daveeddy.com' --user test:test localhost:8080
+     $ curl -i -H 'host: daveeddy.com' --user username:password localhost:8080
      HTTP/1.1 200 OK
      server: nginx
      date: Thu, 14 Nov 2013 22:51:42 GMT
@@ -176,9 +180,9 @@ And on the server we see:
     $ http-host-proxy -r example-router.json -a passhash.txt
     listening on http://0.0.0.0:8080
     [<empty>@daveeddy.com] 127.0.0.1 - - [14/Nov/2013:17:51:30 -0500] "GET / HTTP/1.1" 401 - "-" "curl/7.30.0"
-    [test@daveeddy.com] 127.0.0.1 - - [14/Nov/2013:17:51:42 -0500] "GET / HTTP/1.1" 200 18692 "-" "curl/7.30.0"
+    [username@daveeddy.com] 127.0.0.1 - - [14/Nov/2013:17:51:42 -0500] "GET / HTTP/1.1" 200 18692 "-" "curl/7.30.0"
 
-In the logs you can see `test@daveeddy.com`, the username is automatically prepended to the host
+In the logs you can see `username@daveeddy.com`, the username is automatically prepended to the host
 header when authentication is enabled.
 
 **NOTE:** The authorization header is stripped out by the proxy before being sent
@@ -196,7 +200,7 @@ Usage
 
     authentication options
       -a, --auth <authfile>         [env HTTPHOSTPROXY_AUTH] enable basic http authorization
-                                    and use <authfile> as the `passhash-auth` file
+                                    and use <authfile> as the `hashp` file
       -f, --fail-delay <seconds>    [env HTTPHOSTPROXY_FAIL_DELAY] delay, in seconds, before sending a response to a client
                                     that failed authentication, defaults to 2
 
@@ -211,12 +215,10 @@ Usage
 
     options
       -b, --buffer                  [env HTTPHOSTPROXY_BUFFER] buffer log output, useful if this webserver is heavily used
+      -d, --debug                   [env HTTPHOSTPROXY_DEBUG] print verbose logs, defaults to false
       -h, --help                    print this message and exit
       -u, --updates                 check for available updates on npm
       -v, --version                 print the version number and exit
-
-    misc.
-      generate <username>          run `http-host-proxy generate <user>` to create a passhash auth string
 
 Configuration
 -------------
@@ -248,4 +250,5 @@ License
 MIT License
 
 [0]: http://nodejs.org
-[1]: https://github.com/shaggy-rl/passhash#sha512
+[1]: https://github.com/shaggy-rl/passhash
+[2]: https://github.com/bahamas10/node-hashp

@@ -19,11 +19,9 @@ var util = require('util');
 var accesslog = require('access-log');
 var getopt = require('posix-getopt');
 var httpProxy = require('http-proxy');
-var PasshashAuth = require('passhash-auth');
+var HashP = require('hashp').HashP;
 var strsplit = require('strsplit');
 var uuid = require('node-uuid');
-
-var hash = require('./lib/hash');
 
 var defaulthost = '0.0.0.0';
 var defaultport = 8080;
@@ -42,7 +40,7 @@ function usage() {
     '',
     'authentication options',
     '  -a, --auth <authfile>         [env HTTPHOSTPROXY_AUTH] enable basic http authorization',
-    '                                and use <authfile> as the `passhash-auth` file',
+    '                                and use <authfile> as the `hashp` file',
     '  -f, --fail-delay <seconds>    [env HTTPHOSTPROXY_FAIL_DELAY] delay, in seconds, before sending a response to a client',
     '                                that failed authentication, defaults to ' + defaultfaildelay,
     '',
@@ -61,21 +59,12 @@ function usage() {
     '  -h, --help                    print this message and exit',
     '  -u, --updates                 check for available updates on npm',
     '  -v, --version                 print the version number and exit',
-    '',
-    'misc.',
-    '  generate <username>          run `http-host-proxy generate <user>` to create a passhash auth string',
   ].join('\n');
 }
 
 function debug() {
   if (opts.debug)
     return console.error.apply(console, arguments);
-}
-
-if (process.argv[2] === 'generate') {
-  var args = process.argv.slice(3);
-  hash.cli(args);
-  return;
 }
 
 // command line arguments
@@ -206,10 +195,10 @@ if (opts.ssl) {
 server.listen(opts.port, opts.host, listening);
 
 // create an authorization object if necessary
-var auth;
+var hp;
 if (opts.auth) {
   debug('using auth: %s', opts.auth);
-  auth = new PasshashAuth(opts.auth);
+  hp = new HashP(fs.readFileSync(opts.auth, 'utf8'));
 }
 
 // web server started
@@ -289,7 +278,7 @@ function onrequest(req, res) {
     }
 
     // check if credentials match a known user/pass
-    if (!auth.checkHashMatch(credentials.user, credentials.pass)) {
+    if (!hp.checkMatch(credentials.user, credentials.pass)) {
       d('credentials incorrect');
       setTimeout(function() {
         fail(res, credentials);
