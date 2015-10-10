@@ -15,6 +15,7 @@
   "license": "MIT",
   "dependencies": {
     "access-log": "~0.3.9",
+    "basic-auth": "^1.0.3",
     "hashp": "~0.0.2",
     "http-proxy": "~1.11.2",
     "latest": "~0.2.0",

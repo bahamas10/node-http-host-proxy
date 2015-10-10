@@ -17,6 +17,7 @@ var https = require('https');
 var util = require('util');
 
 var accesslog = require('access-log');
+var auth = require('basic-auth');
 var getopt = require('posix-getopt');
 var httpProxy = require('http-proxy');
 var HashP = require('hashp').HashP;
@@ -239,7 +240,7 @@ function onrequest(req, res) {
     var prefix;
     if (opts.auth) {
       prefix = util.format('%s@%s',
-          credentials && credentials.user || '<empty>',
+          credentials && credentials.name || '<empty>',
           host || '<empty>');
     } else {
       prefix = util.format('%s',
@@ -263,7 +264,7 @@ function onrequest(req, res) {
     implicit = true;
     p = proxies['*'];
   }
-  var credentials = getcredentials(req);
+  var credentials = auth(req);
 
   // check auth first if applicable
   if (opts.auth) {
@@ -278,7 +279,7 @@ function onrequest(req, res) {
     }
 
     // check if credentials match a known user/pass
-    if (!hp.checkMatch(credentials.user, credentials.pass)) {
+    if (!hp.checkMatch(credentials.name, credentials.pass)) {
       d('credentials incorrect');
       setTimeout(function() {
         fail(res, credentials);
@@ -304,7 +305,7 @@ function onrequest(req, res) {
 
   // everything is set, proxy it!
   if (credentials)
-    req.headers['X-Forwarded-User'] = credentials.user;
+    req.headers['X-Forwarded-User'] = credentials.name;
 
   d('proxying request to %s:%d', p.options.target.host, p.options.target.port);
   p.web(req, res, function(e) {
@@ -319,24 +320,4 @@ function fail(res, creds) {
   res.setHeader('WWW-Authenticate', 'Basic realm="Auth Required"');
   res.statusCode = 401;
   res.end();
-}
-
-// extract the credentials from the req object
-function getcredentials(req) {
-  var a = req.headers.authorization;
-  if (!a || a.indexOf('Basic ') !== 0)
-    return null;
-
-  var ret = null;
-  try {
-    var s = new Buffer(a.split(' ')[1], 'base64').toString();
-    var split = strsplit(s, ':', 2);
-    var user = split[0];
-    var pass = split[1];
-    ret = {
-      user: user,
-      pass: pass
-    };
-  } catch (e) {}
-  return ret;
 }
